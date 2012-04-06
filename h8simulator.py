@@ -1766,19 +1766,9 @@ class H8simulator :
     elif self.operation_mnemonic == "LDC" :
       pass
     elif self.operation_mnemonic == "MOV" :
-      if self.operands['src']['addressing'] == 'immidiate' :
-        self.left_side_value = self.operands['src']['value']
-      elif self.operands['src']['addressing'] == 'register' :
-        self.left_side_value = self.getRegistor(self.operands['src']['value'])
-      else :
-        self.left_side_value = self.getMemory(self.operands['src']['effective_address'])
-
-      if self.operands['dst']['addressing'] == 'register' :
-        self.result = self.left_side_value
-        self.setRegistor(self.operands['dst']['value'], self.result)
-      else :
-        self.result = self.left_side_value
-        self.setMemory(self.operands['dst']['effective_address'], self.result)
+      self.left_side_value = self.getSource()
+      self.result = self.left_side_value
+      self.setDestination(self.result)
 
       self.changeNFlag()
       self.changeZFlag()
