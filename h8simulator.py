@@ -39,8 +39,8 @@ class H8simulator :
     # 命令サイズ
     self.opecode_size = 0
 
-    # データサイズ(B,W,L)
-    self.data_size = ""
+    # オペランドサイズ(B,W,L)
+    self.operand_size = ""
 
     # オペランドに関する情報
     #   オペランドの値，
@@ -123,11 +123,11 @@ class H8simulator :
     self.regulerRegisters[n] &= 0xffffffff
 
   def setRegistor(self, n, value) :
-    if self.data_size == "L" :
+    if self.operand_size == "L" :
       self.set32bitRegistor(n, value)
-    elif self.data_size == "W" :
+    elif self.operand_size == "W" :
       self.set16bitRegistor(n, value)
-    elif self.data_size == "B" :
+    elif self.operand_size == "B" :
       self.set8bitRegistor(n, value)
 
   def add32bitRegistor(self, n, value) :
@@ -151,11 +151,11 @@ class H8simulator :
     return 0xffffffff & self.regulerRegisters[n]
 
   def getRegistor(self, n) :
-    if self.data_size == "L" :
+    if self.operand_size == "L" :
       return self.get32bitRegistor(n)
-    elif self.data_size == "W" :
+    elif self.operand_size == "W" :
       return self.get16bitRegistor(n)
-    elif self.data_size == "B" :
+    elif self.operand_size == "B" :
       return self.get8bitRegistor(n)
 
   def get8bitMemory(self, n) :
@@ -173,11 +173,11 @@ class H8simulator :
     return value
 
   def getMemory(self, n) :
-    if self.data_size == "L" :
+    if self.operand_size == "L" :
       return self.get32bitMemory(n)
-    elif self.data_size == "W" :
+    elif self.operand_size == "W" :
       return self.get16bitMemory(n)
-    elif self.data_size == "B" :
+    elif self.operand_size == "B" :
       return self.get8bitMemory(n)
 
   def set8bitMemory(self, n, value) :
@@ -194,11 +194,11 @@ class H8simulator :
     self.memory[n+3] = (value>>24) & 0xff
 
   def setMemory(self, n, value) :
-    if self.data_size == "L" :
+    if self.operand_size == "L" :
       self.set32bitMemory(n, value)
-    elif self.data_size == "W" :
+    elif self.operand_size == "W" :
       self.set16bitMemory(n, value)
-    elif self.data_size == "B" :
+    elif self.operand_size == "B" :
       self.set8bitMemory(n, value)
 
   def pushStack(self, value) :
@@ -238,8 +238,8 @@ class H8simulator :
 
   def getMnemonic(self) :
     mnemonic = self.operation_mnemonic.lower()
-    if self.data_size != None :
-      mnemonic += '.' + self.data_size.lower()
+    if self.operand_size != None :
+      mnemonic += '.' + self.operand_size.lower()
     if self.operands['src']['addressing'] != None :
       mnemonic += ' ' + self.operands['src']['mnemonic']
     if self.operands['dst']['addressing'] != None :
@@ -247,7 +247,7 @@ class H8simulator :
     return mnemonic
 
   def decodeOpecode(self) :
-    self.data_size = None
+    self.operand_size = None
     self.operands['src']['addressing'] = None
     self.operands['dst']['addressing'] = None
 
@@ -259,7 +259,7 @@ class H8simulator :
          self.matchInstructionFormat("c***") or
          self.matchInstructionFormat("b***") or
          self.matchInstructionFormat("d***") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = self.memory[self.programCounter+1]
       self.operands['src']['addressing'] = "immidiate"
       self.operands['dst']['value'] = self.memory[self.programCounter]&0x0f
@@ -276,7 +276,7 @@ class H8simulator :
            self.matchInstructionFormat("18**") or
            self.matchInstructionFormat("1e**") or
            self.matchInstructionFormat("15**") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x0f
@@ -289,7 +289,7 @@ class H8simulator :
            self.matchInstructionFormat("794*****") or
            self.matchInstructionFormat("793*****") or
            self.matchInstructionFormat("795*****") ) :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = ((self.memory[self.programCounter+2]<<8)
                                       +self.memory[self.programCounter+3])
       self.operands['src']['addressing'] = "immidiate"
@@ -303,7 +303,7 @@ class H8simulator :
            self.matchInstructionFormat("64**") or
            self.matchInstructionFormat("19**") or
            self.matchInstructionFormat("65**") ) :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x0f
@@ -316,7 +316,7 @@ class H8simulator :
            self.matchInstructionFormat("7a4[0***]********") or
            self.matchInstructionFormat("7a3[0***]********") or
            self.matchInstructionFormat("7a5[0***]********") ) :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = ((self.memory[self.programCounter+2]<<24)
                                       +(self.memory[self.programCounter+3]<<16)
                                       +(self.memory[self.programCounter+4]<<8)
@@ -329,7 +329,7 @@ class H8simulator :
            self.matchInstructionFormat("1f[1***0***]") or
            self.matchInstructionFormat("0f[1***0***]") or
            self.matchInstructionFormat("1a[1***0***]") ) :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x07
@@ -351,14 +351,14 @@ class H8simulator :
            self.matchInstructionFormat("11b[0***]") or
            self.matchInstructionFormat("103[0***]") or
            self.matchInstructionFormat("113[0***]") ) :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x07
       self.operands['dst']['addressing'] = "register"
 
     elif ( self.matchInstructionFormat("0b0[0***]") or
            self.matchInstructionFormat("1b0[0***]") ) :
            
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = 1
       self.operands['src']['addressing'] = "impliedImmidiate"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x07
@@ -367,7 +367,7 @@ class H8simulator :
     elif ( self.matchInstructionFormat("0b8[0***]") or
            self.matchInstructionFormat("1b8[0***]") ) :
            
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = 2
       self.operands['src']['addressing'] = "impliedImmidiate"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x07
@@ -375,7 +375,7 @@ class H8simulator :
 
     elif ( self.matchInstructionFormat("0b9[0***]") or
            self.matchInstructionFormat("1b9[0***]") ) :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = 4
       self.operands['src']['addressing'] = "impliedImmidiate"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x07
@@ -390,28 +390,28 @@ class H8simulator :
     elif ( self.matchInstructionFormat("01f066[0***0***]") or
            self.matchInstructionFormat("01f064[0***0***]") or
            self.matchInstructionFormat("01f065[0***0***]") ) :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = self.memory[self.programCounter+3]&0x07
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("01006d[0***0***]") :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
       self.operands['src']['addressing'] = "registerIndirectIncrement"
       self.operands['dst']['value'] = self.memory[self.programCounter+3]&0x07
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("010069[1***0***]") :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = self.memory[self.programCounter+3]&0x07
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
       self.operands['dst']['addressing'] = "registerIndirect"
 
     elif self.matchInstructionFormat("01006d[1***0***]") :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = self.memory[self.programCounter+3]&0x07
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
@@ -421,7 +421,7 @@ class H8simulator :
            self.matchInstructionFormat("07**") or
            self.matchInstructionFormat("05**") or
            self.matchInstructionFormat("04**") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = self.memory[self.programCounter+1]
       self.operands['src']['addressing'] = "register"
 
@@ -440,7 +440,7 @@ class H8simulator :
            self.matchInstructionFormat("67[0***]*") or
            self.matchInstructionFormat("73[0***]*") or
            self.matchInstructionFormat("75[0***]*") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['src']['addressing'] = "immidiate"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x0f
@@ -460,7 +460,7 @@ class H8simulator :
           self.matchInstructionFormat("7d[0***]067[0***]0") or
           self.matchInstructionFormat("7c[0***]073[0***]0") or
           self.matchInstructionFormat("7c[0***]075[0***]0") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
       self.operands['src']['addressing'] = "immidiate"
       self.operands['dst']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
@@ -480,7 +480,7 @@ class H8simulator :
           self.matchInstructionFormat("7f**67[0***]0") or
           self.matchInstructionFormat("7e**73[0***]0") or
           self.matchInstructionFormat("7e**75[0***]0") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
       self.operands['src']['addressing'] = "immidiate"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]
@@ -503,7 +503,7 @@ class H8simulator :
           self.matchInstructionFormat("4e**") or
           self.matchInstructionFormat("4f**") or
           self.matchInstructionFormat("55**") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['disp'] = self.memory[self.programCounter+1]
       self.operands['src']['addressing'] = "pcRelative8"
 
@@ -524,7 +524,7 @@ class H8simulator :
           self.matchInstructionFormat("58*0****") or
           self.matchInstructionFormat("58f0****") or
           self.matchInstructionFormat("5c00****") ) :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['disp'] = ((self.memory[self.programCounter+2]<<8)
                                      +self.memory[self.programCounter+3])
       self.operands['src']['addressing'] = "pcRelative16"
@@ -533,7 +533,7 @@ class H8simulator :
           self.matchInstructionFormat("61**") or
           self.matchInstructionFormat("60**") or
           self.matchInstructionFormat("63**") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x0f
@@ -543,7 +543,7 @@ class H8simulator :
           self.matchInstructionFormat("7d[0***]061*0") or
           self.matchInstructionFormat("7d[0***]060*0") or
           self.matchInstructionFormat("7c[0***]063*0") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
@@ -553,7 +553,7 @@ class H8simulator :
           self.matchInstructionFormat("7f**61*0") or
           self.matchInstructionFormat("7f**60*0") or
           self.matchInstructionFormat("7e**63*0") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]
@@ -575,7 +575,7 @@ class H8simulator :
           self.matchInstructionFormat("100*") or
           self.matchInstructionFormat("110*") or
           self.matchInstructionFormat("020*") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['dst']['addressing'] = "register"
 
@@ -597,13 +597,13 @@ class H8simulator :
           self.matchInstructionFormat("101*") or
           self.matchInstructionFormat("111*") or
           self.matchInstructionFormat("119*") ) :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['dst']['addressing'] = "register"
 
     elif (self.matchInstructionFormat("01d051**") or
           self.matchInstructionFormat("01c050**") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = self.memory[self.programCounter+3]&0x0f
@@ -611,7 +611,7 @@ class H8simulator :
 
     elif (self.matchInstructionFormat("01d053*[0***]") or
           self.matchInstructionFormat("01c052*[0***]") ) :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = self.memory[self.programCounter+3]&0x0f
@@ -619,7 +619,7 @@ class H8simulator :
 
     elif (self.matchInstructionFormat("53*[0***]") or
           self.matchInstructionFormat("52*[0***]") ) :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x0f
@@ -653,18 +653,18 @@ class H8simulator :
     elif (self.matchInstructionFormat("014069[0***]0") or
           self.matchInstructionFormat("014069[1***]0") or
           self.matchInstructionFormat("01406d[1***]0") ) :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
       self.operands['src']['addressing'] = "registerIndirect"
 
     elif self.matchInstructionFormat("01406d[0***]0") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
       self.operands['src']['addressing'] = "registerIndirectIncrement"
 
     elif (self.matchInstructionFormat("01406f[0***]0****") or
           self.matchInstructionFormat("01406f[1***]0****") ) :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
       self.operands['src']['disp'] = ((self.memory[self.programCounter+4]<<8)
                                       +self.memory[self.programCounter+5])
@@ -672,7 +672,7 @@ class H8simulator :
 
     elif (self.matchInstructionFormat("014078[0***]06b2000******") or
           self.matchInstructionFormat("014078[0***]06ba000******") ) :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
       self.operands['src']['disp'] = ((self.memory[self.programCounter+7]<<16)
                     +(self.memory[self.programCounter+8]<<8)
@@ -681,35 +681,35 @@ class H8simulator :
 
     elif (self.matchInstructionFormat("01406b00****") or
           self.matchInstructionFormat("01406b80****") ) :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = ((self.memory[self.programCounter+4]<<8)
                                        +self.memory[self.programCounter+5])
       self.operands['src']['addressing'] = "absolute16"
 
     elif (self.matchInstructionFormat("01406b2000******") or
           self.matchInstructionFormat("01406ba000******") ) :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = ((self.memory[self.programCounter+5]<<16)
                +(self.memory[self.programCounter+6]<<8)
                +self.memory[self.programCounter+7])
       self.operands['src']['addressing'] = "absolute24"
 
     elif self.matchInstructionFormat("68[0***]*") :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['src']['addressing'] = "registerIndirect"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("6c[0***]*") :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['src']['addressing'] = "registerIndirectIncrement"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("6e[0***]*****") :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['src']['disp'] = ((self.memory[self.programCounter+2]<<8)
                                       +self.memory[self.programCounter+3])
@@ -718,7 +718,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("78[0***]06a2*00******") : 
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['src']['disp'] = ((self.memory[self.programCounter+5]<<16)
                                      +(self.memory[self.programCounter+6]<<8)
@@ -728,7 +728,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("2***") :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = self.memory[self.programCounter+1]
       self.operands['src']['addressing'] = "absolute8"
       self.operands['dst']['value'] = self.memory[self.programCounter]&0x0f
@@ -736,7 +736,7 @@ class H8simulator :
       
     elif (self.matchInstructionFormat("6a0*****") or
           self.matchInstructionFormat("6a4*****") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = ((self.memory[self.programCounter+2]<<8)
                                        +self.memory[self.programCounter+3])
       self.operands['src']['addressing'] = "absolute16"
@@ -744,7 +744,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("6a2*********") :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = ((self.memory[self.programCounter+2]<<16)
                                       +(self.memory[self.programCounter+3]<<8)
                                       +self.memory[self.programCounter+4])
@@ -753,21 +753,21 @@ class H8simulator :
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("68[1***]*") :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['dst']['addressing'] = "registerindirect"
       
     elif self.matchInstructionFormat("6c[1***]*") :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['dst']['addressing'] = "registerIndirectDecrement"
 
     elif self.matchInstructionFormat("6e[1***]*****") :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
@@ -776,7 +776,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "registerIndirectDisplacement16"
 
     elif self.matchInstructionFormat("78[0***]06aa*00******") :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = self.memory[self.programCounter+3]&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
@@ -787,7 +787,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "registerIndirectDisplacement24"
 
     elif self.matchInstructionFormat("3***") : 
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = self.memory[self.programCounter]&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]
@@ -795,7 +795,7 @@ class H8simulator :
 
     elif (self.matchInstructionFormat("6a8*****") or
           self.matchInstructionFormat("6ac*****") ) :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = ((self.memory[self.programCounter+2]<<8)
@@ -803,7 +803,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "absolute16"
 
     elif self.matchInstructionFormat("6aa*00******") :
-      self.data_size = "B"
+      self.operand_size = "B"
       self.operands['src']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = ((self.memory[self.programCounter+3]<<16)
@@ -812,21 +812,21 @@ class H8simulator :
       self.operands['dst']['addressing'] = "absolute24"
 
     elif self.matchInstructionFormat("69[0***]*") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['dst']['addressing'] = "registerIndirect"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("6d[0***]*") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['dst']['addressing'] = "registerIndirectIncrement"
       self.operands['dst']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("6f[0***]*****") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['src']['disp'] = ((self.memory[self.programCounter+2]<<8)
                                      +self.memory[self.programCounter+3])
@@ -835,7 +835,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("78[0***]06b2*00******") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['src']['disp'] = ((self.memory[self.programCounter+5]<<16)
                                       +(self.memory[self.programCounter+6]<<8)
@@ -845,7 +845,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("6b0*****") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = ((self.memory[self.programCounter+2]<<8)
                                       +self.memory[self.programCounter+3])
       self.operands['src']['addressing'] = "registerIndirectIncrement"
@@ -853,7 +853,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("6b2*00******") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = ((self.memory[self.programCounter+3]<<16)
                +(self.memory[self.programCounter+4]<<8)
                +self.memory[self.programCounter+5])
@@ -862,21 +862,21 @@ class H8simulator :
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("69[1***]*") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['dst']['addressing'] = "registerIndirect"
 
     elif self.matchInstructionFormat("6d[1***]*") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
       self.operands['dst']['addressing'] = "registerindirectDecrement"
 
     elif self.matchInstructionFormat("6f[1***]*****") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
@@ -885,7 +885,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "registerIndirectDisplacement16"
 
     elif self.matchInstructionFormat("78[0***]06ba*00******") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = self.memory[self.programCounter+3]&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+1]>>4)&0x07
@@ -895,7 +895,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "registerIndirectDisplacement24"
 
     elif self.matchInstructionFormat("6b8*******") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = (self.memory[self.programCounter+1]&0x0f)
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = ((self.memory[self.programCounter+2]<<8)
@@ -903,7 +903,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "absolute16"
 
     elif self.matchInstructionFormat("6ba*00******") :
-      self.data_size = "W"
+      self.operand_size = "W"
       self.operands['src']['value'] = self.memory[self.programCounter+1]&0x0f
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = ((self.memory[self.programCounter+3]<<16)
@@ -912,7 +912,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "absolute24"
                                
     elif self.matchInstructionFormat("01006f[0***0***]****") :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
       self.operands['src']['disp'] = ((self.memory[self.programCounter+4]<<8)
                                      +self.memory[self.programCounter+5])
@@ -921,7 +921,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("010078[0***]06b2[0***]00******") :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
       self.operands['src']['disp'] = ((self.memory[self.programCounter+7]<<16)
                                      +(self.memory[self.programCounter+8]<<8)
@@ -931,7 +931,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("01006b0[0***]****") :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = ((self.memory[self.programCounter+4]<<8)
                                       +self.memory[self.programCounter+5])
       self.operands['src']['addressing'] = "absolute16"
@@ -939,7 +939,7 @@ class H8simulator :
       self.operands['dst']['value'] = self.memory[self.programCounter+3]&0x07
 
     elif self.matchInstructionFormat("01006b2[0***]00******") :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = ((self.memory[self.programCounter+5]<<16)
                                       +(self.memory[self.programCounter+6]<<8)
                                       +self.memory[self.programCounter+7])
@@ -948,7 +948,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "register"
 
     elif self.matchInstructionFormat("01006f[1***0***]****") :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = self.memory[self.programCounter+3]&0x07
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
@@ -957,7 +957,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "registerIndirectDisplacement16"
 
     elif self.matchInstructionFormat("010078[1***]06ba[0***]00******") :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = self.memory[self.programCounter+5]&0x07
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = (self.memory[self.programCounter+3]>>4)&0x07
@@ -967,7 +967,7 @@ class H8simulator :
       self.operands['dst']['addressing'] = "registerindirectdisplacement24"
 
     elif self.matchInstructionFormat("01006b8[0***]****") :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = self.memory[self.programCounter+3]&0x07
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = ((self.memory[self.programCounter+4]<<8)
@@ -975,7 +975,7 @@ class H8simulator :
       self.operands['src']['addressing'] = "absolute16"
       
     elif self.matchInstructionFormat("01006ba[0***]00******") :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = self.memory[self.programCounter+3]&0x07
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['value'] = ((self.memory[self.programCounter+5]<<16)
@@ -985,7 +985,7 @@ class H8simulator :
 
     elif (self.matchInstructionFormat("01006d7[0***]") or
           self.matchInstructionFormat("01006df[0***]") ) :
-      self.data_size = "L"
+      self.operand_size = "L"
       self.operands['src']['value'] = self.memory[self.programCounter+3]&0x07
       self.operands['src']['addressing'] = "register"
       self.operands['dst']['addressing'] = ""
@@ -1456,14 +1456,14 @@ class H8simulator :
       operand['mnemonic'] = "#%x" % operand['value']
 
     elif operand['addressing'] == "register" :
-      if self.data_size == "L" :
+      if self.operand_size == "L" :
         operand['mnemonic'] = "er%x" % operand['value']
-      elif self.data_size == "W" :
+      elif self.operand_size == "W" :
         if (operand['value']>>3)&1 :
           operand['mnemonic'] = "e%x" % (operand['value']&0x07)
         else :
           operand['mnemonic'] = "r%x" % (operand['value']&0x07)
-      elif self.data_size == "B" :
+      elif self.operand_size == "B" :
         if (operand['value']>>3)&1 :
           operand['mnemonic'] = "r%xl" % (operand['value']&0x07)
         else :
@@ -1491,20 +1491,20 @@ class H8simulator :
 
     elif operand['addressing'] == "registerIndirectIncrement" :
       operand['effective_address'] = self.get32bitRegistor(operand['value'])
-      if self.data_size == "B" :
+      if self.operand_size == "B" :
         self.add32bitRegistor(operand['value'], 1)
-      elif self.data_size == "W" :
+      elif self.operand_size == "W" :
         self.add32bitRegistor(operand['value'], 2)
-      elif self.data_size == "L" :
+      elif self.operand_size == "L" :
         self.add32bitRegistor(operand['value'], 4)
       operand['mnemonic'] = "@er%x+" % operand['value']
 
     elif operand['addressing'] == "registerindirectDecrement" :
-      if self.data_size == "B" :
+      if self.operand_size == "B" :
         self.add32bitRegistor(operand['value'], -1)
-      elif self.data_size == "W" :
+      elif self.operand_size == "W" :
         self.add32bitRegistor(operand['value'], -2)
-      elif self.data_size == "L" :
+      elif self.operand_size == "L" :
         self.add32bitRegistor(operand['value'], -4)
       operand['effective_address'] = self.get32bitRegistor(operand['value'])
 
@@ -1550,35 +1550,35 @@ class H8simulator :
     operand['effective_address'] &= 0xffffff
   
   def changeNFlag(self) :
-    if self.data_size == "L" :
+    if self.operand_size == "L" :
       self.conditionCodeN = ((self.result>>31)&1 == 1)
-    elif self.data_size == "W" :
+    elif self.operand_size == "W" :
       self.conditionCodeN = ((self.result>>15)&1 == 1)
-    elif self.data_size == "B" :
+    elif self.operand_size == "B" :
       self.conditionCodeN = ((self.result>>7)&1 == 1)
     
   def changeZFlag(self) :
-    if self.data_size == "L" :
+    if self.operand_size == "L" :
       self.conditionCodeZ = ((self.result & 0xffffffff) == 0)
-    elif self.data_size == "W" :
+    elif self.operand_size == "W" :
       self.conditionCodeZ = ((self.result & 0xffff) == 0)
-    elif self.data_size == "B" :
+    elif self.operand_size == "B" :
       self.conditionCodeZ = ((self.result & 0xff) == 0)
 
   def changeVFlag(self, left, right) :
-    if self.data_size == "L" :
+    if self.operand_size == "L" :
       if ((((right>>31)&1) == ((left>>31)&1)) and
           (((right>>31)&1) != ((self.result>>31)&1))):
         self.conditionCodeV = True
       else :
         self.conditionCodeV = False
-    elif self.data_size == "W" :
+    elif self.operand_size == "W" :
       if ((((right>>15)&1) == ((left>>15)&1)) and
           (((right>>15)&1) != ((self.result>>15)&1))):
         self.conditionCodeV = True
       else :
         self.conditionCodeV = False
-    elif self.data_size == "B" :
+    elif self.operand_size == "B" :
       if ((((right>>7)&1) == ((left>>7)&1)) and
           (((right>>7)&1) != ((self.result>>7)&1))):
         self.conditionCodeV = True
@@ -1586,19 +1586,19 @@ class H8simulator :
         self.conditionCodeV = False
 
   def changeCFlag(self) :
-    if self.data_size == "L" :
+    if self.operand_size == "L" :
       self.conditionCodeC = ((self.result>>32)&1 == 1)
-    elif self.data_size == "W" :
+    elif self.operand_size == "W" :
       self.conditionCodeC = ((self.result>>16)&1 == 1)
-    elif self.data_size == "B" :
+    elif self.operand_size == "B" :
       self.conditionCodeC = ((self.result>>8)&1 == 1)
 
   def translateNegative(self, value) :
-    if self.data_size == "L" :
+    if self.operand_size == "L" :
       return (-value)&0xffffffff
-    elif self.data_size == "W" :
+    elif self.operand_size == "W" :
       return (-value)&0xffff
-    elif self.data_size == "B" :
+    elif self.operand_size == "B" :
       return (-value)&0xff
 
   def processOperation(self) :
