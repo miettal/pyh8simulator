@@ -1853,19 +1853,10 @@ class H8simulator :
 
   def runStep(self) :
     self.decodeOpecode()
-
-    self.disasm = ("%x: "%self.programCounter)
-    for x in range(self.opecode_size) :
-      self.disasm += "%02x " % self.memory[self.programCounter+x]
-    for x in range(26-len(self.disasm )) :
-      self.disasm += " "
-
     self.addToProgramCounter(self.opecode_size)
     self.calcEffectiveAddress(self.operands['src'])
     self.calcEffectiveAddress(self.operands['dst'])
     self.processOperation()
-
-    self.disasm += self.getMnemonic()
 
   def matchInstructionFormat(self, fmt) :
     bit_index = 0
