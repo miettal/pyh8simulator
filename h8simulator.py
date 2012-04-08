@@ -3,8 +3,7 @@
 class H8simulator :
   def __init__(self) :
 
-    # S-Format解析時に得られるデータやメモリやレジスタ，エントリポイントなど
-    # メモリ（S-Format解析時に得られるデータ．今回の場合，実装の都合で辞書型を用いる）
+    # メモリ
     self.memory = {}
 
     # 汎用レジスタ
@@ -14,7 +13,6 @@ class H8simulator :
     self.programCounter = 0
 
     # コンディションコードレジスタ
-    # 8ビットまとめてアクセスする場合はgetConditionCodeとsetConditionCodeを使う（未実装）
     self.conditionCodeI = False
     self.conditionCodeUI = False
     self.conditionCodeH = False
@@ -39,7 +37,7 @@ class H8simulator :
     # 命令サイズ
     self.opecode_size = 0
 
-    # オペランドサイズ(B,W,L)
+    # オペランドサイズ("B","W",L)
     self.operand_size = ""
 
     # オペランドに関する情報
