@@ -10,6 +10,7 @@ class SimpleH8simulator(h8simulator.H8simulator) :
     # エントリアドレス
     self.entryAddress = 0
 
+    # 逆アセンブリ（実行した命令1行）
     self.disasm_line = ""
 
     # IO周り初期化
