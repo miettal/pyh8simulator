@@ -88,10 +88,6 @@ class SimpleH8simulator(h8simulator.H8simulator) :
     h8simulator.H8simulator.runStep(self)
 
     self.disasm_line = ("%6x: "%old_programcounter)
-    #for x in range(self.opecode_size) :
-    #  self.disasm_line += "%02x " % self.memory[old_programcounter+x]
-    #for x in range(26-len(self.disasm_line)) :
-    #  self.disasm_line += " "
     self.disasm_line += self.getMnemonic()
 
     self.runIO()
