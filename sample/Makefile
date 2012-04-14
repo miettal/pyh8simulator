@@ -1,3 +1,7 @@
+# 
+#  H8300Hシミュレータ用Makefile（元ファイルから余計な分を削ったもの）
+#
+
 TARGET = sample.mot
 SOURCE_C = sample.c
 
