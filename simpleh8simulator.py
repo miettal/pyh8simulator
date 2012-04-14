@@ -14,7 +14,7 @@ class SimpleH8simulator(h8simulator.H8simulator) :
     self.disasm_line = ""
 
     # IO周り初期化
-    self.OutputBuf = []
+    self.outputBuf = []
     self.outputAddress = 0x100002
     self.set8bitMemory(self.outputAddress, 0);
 
@@ -87,18 +87,18 @@ class SimpleH8simulator(h8simulator.H8simulator) :
     old_programcounter = self.getProgramCounter()
     h8simulator.H8simulator.runStep(self)
 
-    self.disasm_line = ("%x: "%old_programcounter)
-    for x in range(self.opecode_size) :
-      self.disasm_line += "%02x " % self.memory[old_programcounter+x]
-    for x in range(26-len(self.disasm_line)) :
-      self.disasm_line += " "
+    self.disasm_line = ("%6x: "%old_programcounter)
+    #for x in range(self.opecode_size) :
+    #  self.disasm_line += "%02x " % self.memory[old_programcounter+x]
+    #for x in range(26-len(self.disasm_line)) :
+    #  self.disasm_line += " "
     self.disasm_line += self.getMnemonic()
 
     self.runIO()
     
   def runIO(self) :
     if self.get8bitMemory(self.outputAddress) != 0 :
-      self.OutputBuf.insert(0, "%c" % self.get8bitMemory(self.outputAddress))
+      self.outputBuf.insert(0, "%c" % self.get8bitMemory(self.outputAddress))
       self.set8bitMemory(self.outputAddress, 0)
 
   def getDisAssembly(self, address=None, disasm={}) :
