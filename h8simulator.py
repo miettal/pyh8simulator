@@ -127,6 +127,8 @@ class H8simulator :
       self.set16bitRegistor(n, value)
     elif self.operand_size == "B" :
       self.set8bitRegistor(n, value)
+    else :
+      Exception("unknown operand size")
 
   def add32bitRegistor(self, n, value) :
     self.set32bitRegistor(n, self.get32bitRegistor(n)+value)
@@ -139,10 +141,10 @@ class H8simulator :
     return value
 
   def get16bitRegistor(self, n) :
-    if ((n>>3)&1) == 0 :
-      value = 0xffff & self.regulerRegisters[0x07&n]
-    else :
+    if (n>>3)&1 :
       value = 0xffff & (self.regulerRegisters[0x07&n]>>16)
+    else :
+      value = 0xffff & self.regulerRegisters[0x07&n]
     return value
 
   def get32bitRegistor(self, n) :
@@ -155,6 +157,8 @@ class H8simulator :
       return self.get16bitRegistor(n)
     elif self.operand_size == "B" :
       return self.get8bitRegistor(n)
+    else :
+      Exception("unknown operand size")
 
   def get8bitMemory(self, n) :
     return self.memory[n]
@@ -177,6 +181,8 @@ class H8simulator :
       return self.get16bitMemory(n)
     elif self.operand_size == "B" :
       return self.get8bitMemory(n)
+    else :
+      Exception("unknown operand size")
 
   def set8bitMemory(self, n, value) :
     self.memory[n] = value & 0xff
@@ -198,6 +204,8 @@ class H8simulator :
       self.set16bitMemory(n, value)
     elif self.operand_size == "B" :
       self.set8bitMemory(n, value)
+    else :
+      Exception("unknown operand size")
 
   def pushStack(self, value) :
     self.addToStackPointer(-4)
@@ -991,6 +999,8 @@ class H8simulator :
     elif self.matchInstructionFormat("57[00**]0") :
       self.operands['src']['value'] = (self.memory[self.programCounter+1]>>4)&0x03
       self.operands['src']['addressing'] = "immidiate"
+    else :
+      Exception("unknown opecode")
 
     self.opecode_size = self.format_size
 
@@ -1442,6 +1452,8 @@ class H8simulator :
       self.operation_mnemonic = "BNOT"
     elif self.matchInstructionFormat("7f**72") :
       self.operation_mnemonic = "BCLR"
+    else :
+      Exception("unknown opecode")
 
   def calcEffectiveAddress(self, operand):
     if operand['addressing'] == None :
@@ -1544,6 +1556,8 @@ class H8simulator :
     elif operand['addressing'] == "memoryIndirect" :
       operand['effective_address'] = self.memory[operand['value']]
       operand['mnemonic'] = "@@%x" % operand['value']
+    else :
+      Exception("unknown addressing mode")
 
     operand['effective_address'] &= 0xffffff
   
@@ -1554,6 +1568,8 @@ class H8simulator :
       self.conditionCodeN = ((self.result>>15)&1 == 1)
     elif self.operand_size == "B" :
       self.conditionCodeN = ((self.result>>7)&1 == 1)
+    else :
+      Exception("unknown operand size")
     
   def changeZFlag(self) :
     if self.operand_size == "L" :
@@ -1562,6 +1578,8 @@ class H8simulator :
       self.conditionCodeZ = ((self.result & 0xffff) == 0)
     elif self.operand_size == "B" :
       self.conditionCodeZ = ((self.result & 0xff) == 0)
+    else :
+      Exception("unknown operand size")
 
   def changeVFlag(self, left, right) :
     if self.operand_size == "L" :
@@ -1582,6 +1600,8 @@ class H8simulator :
         self.conditionCodeV = True
       else :
         self.conditionCodeV = False
+    else :
+      Exception("unknown operand size")
 
   def changeCFlag(self) :
     if self.operand_size == "L" :
@@ -1590,6 +1610,8 @@ class H8simulator :
       self.conditionCodeC = ((self.result>>16)&1 == 1)
     elif self.operand_size == "B" :
       self.conditionCodeC = ((self.result>>8)&1 == 1)
+    else :
+      Exception("unknown operand size")
 
   def translateNegative(self, value) :
     if self.operand_size == "L" :
@@ -1598,6 +1620,8 @@ class H8simulator :
       return (-value)&0xffff
     elif self.operand_size == "B" :
       return (-value)&0xff
+    else :
+      Exception("unknown operand size")
 
   def processOperation(self) :
     if self.operation_mnemonic == "ADD" :
@@ -1848,6 +1872,8 @@ class H8simulator :
       pass
     elif self.operation_mnemonic == "XORC" :
       pass
+    else :
+      Exception("unknown opecode")
 
   def runStep(self) :
     self.decodeOpecode()
