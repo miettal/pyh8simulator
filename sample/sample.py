@@ -6,7 +6,6 @@ sim = SimpleH8simulator()
 
 sim.load("sample.mot")
 sim.reset()
-sim.getDisAssembly
 
 while True :
   sim.runStep()
