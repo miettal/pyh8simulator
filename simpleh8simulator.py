@@ -91,9 +91,6 @@ class SimpleH8simulator(h8simulator.H8simulator) :
     # SFormatファイル
     self.sformat = SFormat()
 
-    # 逆アセンブリ（実行した命令1行）
-    self.disasm_line = ""
-
     # IOアドレス
     self.outputAddress = 0x100002
     
@@ -107,12 +104,7 @@ class SimpleH8simulator(h8simulator.H8simulator) :
     self.set8bitMemory(self.outputAddress, 0);
 
   def runStep(self) :
-    old_programcounter = self.getProgramCounter()
     h8simulator.H8simulator.runStep(self)
-
-    self.disasm_line = ("%6x: "%old_programcounter)
-    self.disasm_line += self.getMnemonic()
-
     self.runIO()
     
   def runIO(self) :
@@ -122,7 +114,7 @@ class SimpleH8simulator(h8simulator.H8simulator) :
 
   def getDisAssembly(self, address=None, disasm={}) :
     if address == None :
-      self.loadEntryAddressToProgramCounter()
+      self.reset()
     else :
       self.setProgramCounter(address)
     jump_operation_list = [
@@ -151,7 +143,7 @@ class SimpleH8simulator(h8simulator.H8simulator) :
       except :
         pass
       
-      disasm[old_program_counter] = self.disasm_line
+      disasm[old_program_counter] = self.getMnemonic()
 
       if self.operation_mnemonic == "RTS" :
         break
