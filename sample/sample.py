@@ -4,8 +4,9 @@ from simpleh8simulator import *
 
 sim = SimpleH8simulator()
 
-sim.loadSFormatFromFile("sample.mot")
-sim.loadEntryAddressToProgramCounter()
+sim.load("sample.mot")
+sim.reset()
+sim.getDisAssembly
 
 while True :
   sim.runStep()

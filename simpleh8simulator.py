@@ -1,36 +1,56 @@
 # -*- coding: utf-8 -*-
 import h8simulator
 
-class SimpleH8simulator(h8simulator.H8simulator) :
-  def __init__(self) :
-    h8simulator.H8simulator.__init__(self)
-
+class SFormat() :
+  def __init__(self, filename=None) :
     # プログラム名
     self.programName = ""
     # エントリアドレス
     self.entryAddress = 0
+    # メモリデータ
+    self.memoryData = {}
+    
+    if filename :
+      self.loadFromString(filename)
 
-    # 逆アセンブリ（実行した命令1行）
-    self.disasm_line = ""
+  def setProgramName(self, value) :
+    self.programName = value
 
-    # IO周り初期化
-    self.outputBuf = []
-    self.outputAddress = 0x100002
-    self.set8bitMemory(self.outputAddress, 0);
+  def getProgramName(self) :
+    return self.programName
 
-  def loadSFormatFromFile(self, filename) :
+  def setEntryAddress(self, value) :
+    self.entryAddress = value
+
+  def getEntryAddress(self) :
+    return self.entryAddress
+    
+  def setMemoryData(self, address, data) :
+    '''
+        メモリにバイトデータをセットするメソッド
+        address:開始アドレス
+        data:バイトデータ（整数のリスト，要素は8ビットとみなした整数値）
+    '''
+    for byte in data :
+      self.memoryData[address] = byte
+      address += 1
+      
+  def getMemoryData(self) :
+    return self.memoryData
+    
+  def loadFromFile(self, filename) :
     '''
         S-Format 解析用メソッド（引数がファイル名版）
         filename:Sフォーマットのファイル名またはファイルへのパス
     '''
-    self.loadSFormatFromString(open(filename, 'r').read())
+    self.loadFromString(open(filename, 'r').read())
   
-  def loadSFormatFromString(self, sformat_string) :
+  def loadFromString(self, string) :
     '''
         S-Format 解析用メソッド
-        sformat_string:Sフォーマットの文字列（open(filename,'r').read()などを直接渡せばいい）
+        string:Sフォーマットの文字列（open(filename,'r').read()などを直接渡せばいい）
     '''
-    for line in sformat_string.split() :
+    for line in string.split() :
       if line[:2] == "S0" : 
         self.setProgramName(''.join(map(chr, hexStrToNbyteList(line[8:-2], 1))))
       if line[:2] == "S1" :
@@ -61,27 +81,30 @@ class SimpleH8simulator(h8simulator.H8simulator) :
         address = hexStrToNbyteList(line[4:8], 2)[0]
         self.setEntryAddress(address)
 
-  def setMemoryData(self, address, data) :
-    '''
-        メモリにバイトデータをセットするメソッド
-        address:開始アドレス
-        data:バイトデータ（整数のリスト，要素は8ビットとみなした整数値）
-    '''
-    for byte in data :
-      self.memory[address] = byte
-      address += 1
+def hexStrToNbyteList(s, n) :
+    return [ int(s[2*n*x:2*n*(x+1)], 16) for x in range(len(s)/(2*n))]
+    
+class SimpleH8simulator(h8simulator.H8simulator) :
+  def __init__(self) :
+    h8simulator.H8simulator.__init__(self)
+    
+    # SFormatファイル
+    self.sformat = SFormat()
 
-  def setEntryAddress(self, entry_address) :
-    self.entryAddress = entry_address
+    # 逆アセンブリ（実行した命令1行）
+    self.disasm_line = ""
 
-  def getEntryAddress(self) :
-    return self.entryAddress
-  
-  def setProgramName(self, program_name) :
-    self.programName = program_name
-
-  def loadEntryAddressToProgramCounter(self) :
-    self.setProgramCounter(self.getEntryAddress())
+    # IOアドレス
+    self.outputAddress = 0x100002
+    
+  def load(self, filename) :
+    self.sformat.loadFromFile(filename)
+    
+  def reset(self) :
+    self.loadMemory(self.sformat.getMemoryData())
+    self.setProgramCounter(self.sformat.getEntryAddress())
+    self.outputBuf = []
+    self.set8bitMemory(self.outputAddress, 0);
 
   def runStep(self) :
     old_programcounter = self.getProgramCounter()
@@ -143,7 +166,3 @@ class SimpleH8simulator(h8simulator.H8simulator) :
         break
 
     return disasm
-    
-
-def hexStrToNbyteList(s, n) :
-    return [ int(s[2*n*x:2*n*(x+1)], 16) for x in range(len(s)/(2*n))]

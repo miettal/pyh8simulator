@@ -61,6 +61,9 @@ class H8simulator :
     self.right_side_value = 0
     self.left_side_value = 0
     self.result = 0
+    
+  def loadMemory(self, value) :
+    self.memory = value
 
   def setProgramCounter(self, value) :
     self.programCounter = (value & 0xffffff)
