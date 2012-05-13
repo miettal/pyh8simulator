@@ -100,8 +100,11 @@ class SimpleH8simulator(h8simulator.H8simulator) :
   def reset(self) :
     self.loadMemory(self.sformat.getMemoryData())
     self.setProgramCounter(self.sformat.getEntryAddress())
+    for x in range(8) :
+      self.set32bitRegistor(x, 0)
+    self.setConditionCode(0)
     self.outputBuf = []
-    self.set8bitMemory(self.outputAddress, 0);
+    self.set8bitMemory(self.outputAddress, 0)
 
   def runStep(self) :
     h8simulator.H8simulator.runStep(self)
