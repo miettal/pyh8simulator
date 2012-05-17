@@ -53,33 +53,35 @@ class SFormat() :
     for line in string.split() :
       if line[:2] == "S0" : 
         self.setProgramName(''.join(map(chr, hexStrToNbyteList(line[8:-2], 1))))
-      if line[:2] == "S1" :
+      elif line[:2] == "S1" :
         address = hexStrToNbyteList(line[4:8], 2)[0]
         data = hexStrToNbyteList(line[8:-2], 1)
         self.setMemoryData(address, data)
-      if line[:2] == "S2" : 
+      elif line[:2] == "S2" : 
         address = hexStrToNbyteList(line[4:10], 3)[0]
         data = hexStrToNbyteList(line[10:-2], 1)
         self.setMemoryData(address, data)
-      if line[:2] == "S3" : 
+      elif line[:2] == "S3" : 
         address = hexStrToNbyteList(line[4:12], 4)[0]
         data = hexStrToNbyteList(line[12:-2], 1)
         self.setMemoryData(address, data)
-      if line[:2] == "S4" : 
+      elif line[:2] == "S4" : 
         pass
-      if line[:2] == "S5" : 
+      elif line[:2] == "S5" : 
         pass
-      if line[:2] == "S6" : 
+      elif line[:2] == "S6" : 
         pass
-      if line[:2] == "S7" : 
+      elif line[:2] == "S7" : 
         address = hexStrToNbyteList(line[4:12], 4)[0]
         self.setEntryAddress(address)
-      if line[:2] == "S8" : 
+      elif line[:2] == "S8" : 
         address = hexStrToNbyteList(line[4:10], 3)[0]
         self.setEntryAddress(address)
-      if line[:2] == "S9" : 
+      elif line[:2] == "S9" : 
         address = hexStrToNbyteList(line[4:8], 2)[0]
         self.setEntryAddress(address)
+      else :
+        raise Exception("invalid format")
 
 def hexStrToNbyteList(s, n) :
     return [ int(s[2*n*x:2*n*(x+1)], 16) for x in range(len(s)/(2*n))]
